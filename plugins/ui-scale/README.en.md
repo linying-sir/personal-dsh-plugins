@@ -9,7 +9,7 @@ A UI scale switcher for DeepSeek Harness. An `Aa` button appears at the bottom o
 - Sidebar `Aa` trigger plus a five-step flyout, with `aria-*` attributes and keyboard support (`Esc` closes).
 - The choice is written to `~/.dsh/ui-scale.json` through a loopback-only host route (`/ui-scale/api`); `localStorage` is only a first-paint cache, so the scale survives a restart.
 - `100%` means "the window's current baseline". If the window already starts at 125% zoom, the flyout shows "Window base 125%" so the two layers are not confused.
-- Compensates for floating-surface placement, right-panel width and approval-card focus scrolling after scaling (see below).
+- Compensates for floating-surface placement, right-panel width, approval-card focus scrolling and the turn-navigation landing after scaling; the rail marks are also a little thicker when zoomed (see below).
 
 ## Install
 
@@ -64,6 +64,12 @@ The plugin divides the frame's own rect by the factor and nudges the `ResizeObse
 Clicking "Allow once / Reject" focuses the button; inside a scaled card this scrolls the conversation, which the `ui-chat` follow controller reads as the reader scrolling away, so streamed content stops following the tail.
 
 After an approval click the plugin scrolls the visible `[data-conversation-scroll]` back to the bottom a few times, letting the controller see a near-bottom position and resume following.
+
+### Turn navigation
+
+`ui-chat` computes a turn jump as `row.getBoundingClientRect().top - scroller.getBoundingClientRect().top` — visual pixels — then adds that delta to `scrollTop`, which is in layout pixels. With a scaled body the visual delta is `scale` times too large, so clicking a mark on the right-hand turn rail overshoots further the more turns the session has.
+
+The plugin captures the mark click, waits for `ui-chat` to finish its own landing, divides the visual delta by the current factor, and re-aligns the target turn to the same 24px offset; for an older turn it waits until history loads. While zoomed, the rail marks grow from 20×2 to 24×3 (active 28×3.5), which makes a long session easier to scan and hit.
 
 ## Notes
 

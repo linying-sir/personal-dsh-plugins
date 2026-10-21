@@ -19,6 +19,8 @@ window.__ModuleLoader__.load({
     const A_SIZES = [10, 12, 14, 16, 18];
     const STYLE_ATTR = 'data-plugin="dsh-ui-scale"';
     const STYLE_SELECTOR = `style[${STYLE_ATTR}]`;
+    /** Marks the chat's turn-navigation rail once the plugin has adopted it. */
+    const TURN_RAIL_ATTR = "data-dsh-turn-rail";
 
     const zh = {
       "button.title": "界面缩放",
@@ -285,6 +287,21 @@ html[data-dsh-ui-zoom] {
 }
 html[data-windows-titlebar][data-dsh-ui-zoom] {
   --dsh-windows-titlebar-height: calc(40px / var(--dsh-ui-scale, 1)) !important;
+}
+
+/* ---------- turn navigation rail ---------- */
+/* The stock rail is a 20x2 line; at a zoomed body it reads too thin. */
+html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]::before {
+  width: 24px !important;
+  height: 3px !important;
+  border-radius: 3px !important;
+}
+html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index][aria-current="true"]::before {
+  width: 28px !important;
+  height: 3.5px !important;
+}
+html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible::after {
+  width: 24px !important;
 }
 `;
 
@@ -623,6 +640,131 @@ html[data-windows-titlebar][data-dsh-ui-zoom] {
       };
     }
 
+    /**
+     * Turn number encoded in a turn-rail mark's localized aria-label.
+     * Chinese: 跳转到第 3 轮；English: Jump to turn 3.
+     * @param button - one rail mark.
+     * @returns the 1-based turn, or null when the label is not a turn label.
+     */
+    function turnOfMark(button) {
+      const label = button.getAttribute("aria-label") ?? "";
+      const match = /第\s*(\d+)\s*轮/.exec(label) ?? /\bturn\s*(\d+)/i.exec(label);
+      if (match === null) return null;
+      const turn = Number(match[1]);
+      return Number.isSafeInteger(turn) ? turn : null;
+    }
+
+    /**
+     * Adopt the chat's turn-navigation nav once it mounts. The stylesheet and the
+     * click repair both key off the marker instead of a CSS-module class name.
+     */
+    function markTurnRails() {
+      if (typeof document === "undefined") return;
+      for (const nav of document.querySelectorAll(`nav:not([${TURN_RAIL_ATTR}])`)) {
+        const button = Array.from(nav.querySelectorAll("button[data-index]")).find(
+          (candidate) => turnOfMark(candidate) !== null,
+        );
+        if (button !== undefined) {
+          nav.setAttribute(TURN_RAIL_ATTR, "");
+        }
+      }
+    }
+
+    /** The conversation scrollport that owns one rail nav. */
+    function scrollerForRail(rail) {
+      if (typeof document === "undefined") return null;
+      const root = rail.parentElement?.parentElement;
+      const scoped = root?.querySelector("[data-conversation-scroll]");
+      if (scoped instanceof HTMLElement) return scoped;
+      const all = document.querySelectorAll("[data-conversation-scroll]");
+      return all.length === 1 && all[0] instanceof HTMLElement ? all[0] : null;
+    }
+
+    /** Pending frame of the turn-landing repair; one repair at a time. */
+    let turnRepairFrame = null;
+    /** Bumped to abandon an older repair when another mark is clicked. */
+    let turnRepairGeneration = 0;
+
+    /**
+     * Re-land a turn after ui-chat's own navigation.
+     *
+     * `ui-chat` computes the landing as
+     * `row.getBoundingClientRect().top - scroller.getBoundingClientRect().top`,
+     * which is in visual pixels, then adds it to `scrollTop` (layout pixels).
+     * With a transformed body the visual delta is `cssScale` times too large,
+     * so the more turns and the higher the zoom, the further the jump misses.
+     * This waits for the row (older turns may load first), converts the delta
+     * back to layout pixels, and lands the row at the same 24px offset.
+     *
+     * @param turn - 1-based turn that was selected.
+     * @param rail - the nav element whose mark was clicked.
+     */
+    function repairTurnLanding(turn, rail) {
+      if (cssScale === 1) return;
+      const generation = ++turnRepairGeneration;
+      const started = performance.now();
+      const step = () => {
+        turnRepairFrame = null;
+        if (generation !== turnRepairGeneration) return;
+        const scroller = scrollerForRail(rail);
+        const row = scroller?.querySelector(
+          `[data-chat-turn="${turn}"]:not([hidden]):not([hidden] *)`,
+        );
+        if (scroller !== null && row instanceof HTMLElement) {
+          const delta =
+            (row.getBoundingClientRect().top - scroller.getBoundingClientRect().top) / cssScale;
+          const offset = 24;
+          if (Math.abs(delta - offset) > 1.5) {
+            const before = scroller.scrollTop;
+            scroller.scrollTop += delta - offset;
+            // Stop at the scrollport's clamp: the requested offset is unreachable.
+            if (Math.abs(scroller.scrollTop - before) < 0.5) return;
+            turnRepairFrame = requestAnimationFrame(step);
+            return;
+          }
+          return;
+        }
+        if (performance.now() - started < 6000) {
+          turnRepairFrame = requestAnimationFrame(step);
+        }
+      };
+      if (turnRepairFrame !== null) cancelAnimationFrame(turnRepairFrame);
+      turnRepairFrame = requestAnimationFrame(step);
+    }
+
+    /** Watch the turn nav, adopt it, and repair clicks at a transformed scale. */
+    function installTurnNavigationRepair() {
+      if (typeof document === "undefined" || document.body === null) return () => {};
+      let markFrame = null;
+      const markSoon = () => {
+        if (markFrame !== null) return;
+        markFrame = requestAnimationFrame(() => {
+          markFrame = null;
+          markTurnRails();
+        });
+      };
+      const onClick = (event) => {
+        if (!(event.target instanceof Element)) return;
+        const button = event.target.closest(`nav[${TURN_RAIL_ATTR}] button[data-index]`);
+        if (!(button instanceof HTMLElement)) return;
+        const rail = button.closest(`nav[${TURN_RAIL_ATTR}]`);
+        const turn = turnOfMark(button);
+        if (rail instanceof HTMLElement && turn !== null) repairTurnLanding(turn, rail);
+      };
+      const observer = new MutationObserver(markSoon);
+      observer.observe(document.body, { childList: true, subtree: true });
+      document.addEventListener("click", onClick, true);
+      markTurnRails();
+      return () => {
+        observer.disconnect();
+        document.removeEventListener("click", onClick, true);
+        if (markFrame !== null) cancelAnimationFrame(markFrame);
+        turnRepairGeneration += 1;
+        if (turnRepairFrame !== null) cancelAnimationFrame(turnRepairFrame);
+        turnRepairFrame = null;
+      };
+    }
+
     /** Format a factor as a whole percentage. */
     function pct(scale) {
       return `${Math.round(scale * 100)}%`;
@@ -774,6 +916,8 @@ html[data-windows-titlebar][data-dsh-ui-zoom] {
       ctx.effect(() => {
         patchFrameMeasurement();
       }, "ui-scale: frame measurement");
+
+      ctx.effect(() => installTurnNavigationRepair(), "ui-scale: turn navigation");
 
       ctx.effect(() => ctx.locale.register(NS, { zh, en }), "ui-scale: dictionaries");
       const t = ctx.locale.bind(NS);
