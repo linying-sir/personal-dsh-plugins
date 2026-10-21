@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# editors
+.vscode/
+.idea/
+
+# local plugin preference files, if a plugin writes one next to the source
+ui-scale.json

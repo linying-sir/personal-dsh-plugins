@@ -1,0 +1,17 @@
+{
+  "name": "personal-dsh-plugins",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A personal collection of DeepSeek Harness plugins",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "plugins/*"
+  ],
+  "scripts": {
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
