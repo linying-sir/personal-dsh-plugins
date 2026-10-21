@@ -2,8 +2,6 @@
 
 A UI scale switcher for DeepSeek Harness. An `Aa` button appears at the bottom of the sidebar; pick **100 / 125 / 150 / 175 / 200%** and the whole interface scales immediately. The choice is persisted and survives restarts.
 
-It also replaces the bare `W` of the WSL workspace plugin with a blue-violet gradient badge (visible only when `dsh-wsl-workspace` is installed).
-
 > 中文说明见 [README.md](README.md)。
 
 ## Features
@@ -35,7 +33,7 @@ and use the package name in the patch, `name: 'dsh-ui-scale'`. Pick one method o
 
 ## Usage
 
-1. Expand the sidebar: `W` (with the WSL plugin) and `Aa` sit above the account row.
+1. Expand the sidebar: `Aa` sits above the account row.
 2. Click `Aa`, then pick a scale.
 3. `100%` restores the window's native size.
 
@@ -76,7 +74,7 @@ After an approval click the plugin scrolls the visible `[data-conversation-scrol
 
 ## Uninstall
 
-Remove the `ui-scale` insert block from `~/.dsh/profiles/desktop/cordis.patch.yml` and restart DSH. The `W` badge styling disappears with it.
+Remove the `ui-scale` insert block from `~/.dsh/profiles/desktop/cordis.patch.yml` and restart DSH.
 
 ## License
 

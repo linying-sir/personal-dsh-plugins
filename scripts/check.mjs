@@ -150,6 +150,69 @@ for (const directoryName of pluginDirectories) {
   }
 }
 
+// ---- inventory -------------------------------------------------------------
+
+const inventoryPath = join(pluginsRoot, "manifest.json");
+if (!existsSync(inventoryPath)) {
+  fail("plugins/manifest.json: missing (scripts/install-profile.mjs reads it)");
+} else {
+  const inventory = readJson(inventoryPath, "plugins/manifest.json");
+  if (inventory !== null) {
+    const entries = Array.isArray(inventory.plugins) ? inventory.plugins : [];
+    if (entries.length === 0) fail("plugins/manifest.json: no plugins listed");
+
+    const listed = new Set();
+    for (const entry of entries) {
+      if (entry === null || typeof entry !== "object") {
+        fail("plugins/manifest.json: every entry must be an object");
+        continue;
+      }
+      if (entry.kind === "path") {
+        if (typeof entry.dir !== "string" || !pluginDirectories.includes(entry.dir)) {
+          fail(`plugins/manifest.json: path plugin "${String(entry.dir)}" has no plugins/ directory`);
+          continue;
+        }
+        if (listed.has(entry.dir)) {
+          fail(`plugins/manifest.json: ${entry.dir} is listed twice`);
+          continue;
+        }
+        listed.add(entry.dir);
+        if (entry.id !== entry.dir) {
+          fail(`plugins/manifest.json: ${entry.dir} must use "${entry.dir}" as its id`);
+        }
+      } else if (entry.kind === "package") {
+        if (typeof entry.name !== "string" || entry.name.trim() === "") {
+          fail("plugins/manifest.json: a package plugin is missing name");
+        }
+        if (typeof entry.version !== "string" || entry.version.trim() === "") {
+          fail(`plugins/manifest.json: package plugin "${String(entry.name)}" is missing version`);
+        }
+      } else {
+        fail(`plugins/manifest.json: unknown kind "${String(entry.kind)}"`);
+      }
+    }
+
+    for (const directoryName of pluginDirectories) {
+      if (!listed.has(directoryName)) {
+        fail(`plugins/manifest.json: plugin directory "${directoryName}" is not listed`);
+      }
+    }
+  }
+}
+
+for (const script of ["scripts/install-profile.mjs"]) {
+  const path = join(root, script);
+  if (!existsSync(path)) {
+    fail(`${script}: missing`);
+    continue;
+  }
+  try {
+    execFileSync(process.execPath, ["--check", path], { stdio: "ignore", windowsHide: true });
+  } catch {
+    fail(`${script}: syntax error`);
+  }
+}
+
 // ---- report ----------------------------------------------------------------
 
 for (const message of notes) console.warn(`note: ${message}`);

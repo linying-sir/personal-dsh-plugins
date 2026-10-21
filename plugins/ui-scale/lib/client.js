@@ -278,43 +278,6 @@ window.__ModuleLoader__.load({
   .uis-pop, .uis-card, .uis-trigger { animation: none; transition: none; }
 }
 
-/* ---------- WSL workspace badge (dsh-wsl-workspace) ---------- */
-.dww-letter {
-  box-sizing: border-box;
-  width: 18px !important;
-  height: 18px !important;
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-  background: linear-gradient(145deg, #6aa2ff 0%, #5b6cff 46%, #9a5cff 100%);
-  box-shadow: 0 1px 2px rgba(18, 32, 70, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.34);
-  color: #fff;
-  font-size: 0 !important;
-  line-height: 1;
-  flex: none;
-  transition: transform 140ms var(--ds-ease-in-out, ease), box-shadow 140ms var(--ds-ease-in-out, ease);
-}
-.dww-letter::before {
-  content: "W";
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0;
-  text-shadow: 0 1px 1px rgba(10, 20, 50, 0.24);
-}
-.dww-action:hover .dww-letter {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 7px rgba(18, 32, 70, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-.dww-action--rail .dww-letter {
-  width: 22px !important;
-  height: 22px !important;
-  border-radius: 6px;
-}
-.dww-action--rail .dww-letter::before { font-size: 13px; }
-
 /* ---------- scaled document ---------- */
 html[data-dsh-ui-zoom] {
   overflow: hidden;

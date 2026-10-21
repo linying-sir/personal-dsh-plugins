@@ -1,0 +1,47 @@
+{
+  "name": "dsh-wsl-badge",
+  "version": "0.1.0",
+  "description": "Gradient W badge for the dsh-wsl-workspace sidebar action in DeepSeek Harness",
+  "license": "MIT",
+  "author": "linying-sir",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "README.md",
+    "README.en.md"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "wsl",
+    "badge",
+    "css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linying-sir/personal-dsh-plugins.git",
+    "directory": "plugins/wsl-badge"
+  },
+  "homepage": "https://github.com/linying-sir/personal-dsh-plugins/tree/main/plugins/wsl-badge",
+  "bugs": {
+    "url": "https://github.com/linying-sir/personal-dsh-plugins/issues"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

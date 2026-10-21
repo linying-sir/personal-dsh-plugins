@@ -1,7 +1,7 @@
 {
   "name": "dsh-ui-scale",
-  "version": "0.1.0",
-  "description": "DeepSeek Harness UI scale switcher (100-200%) with a persisted preference, plus a polished WSL workspace badge",
+  "version": "0.1.1",
+  "description": "DeepSeek Harness UI scale switcher (100-200%) with a preference that survives restarts",
   "license": "MIT",
   "author": "linying-sir",
   "type": "module",
@@ -22,8 +22,7 @@
     "dsh-plugin",
     "ui",
     "zoom",
-    "scale",
-    "wsl"
+    "scale"
   ],
   "repository": {
     "type": "git",

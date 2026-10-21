@@ -1,0 +1,22 @@
+{
+  "description": "Inventory used by scripts/install-profile.mjs. kind=path plugins are loaded from this repository by absolute path; kind=package plugins are installed with `dsh plugin add`.",
+  "profile": "desktop",
+  "plugins": [
+    {
+      "id": "ui-scale",
+      "kind": "path",
+      "dir": "ui-scale"
+    },
+    {
+      "id": "wsl-badge",
+      "kind": "path",
+      "dir": "wsl-badge"
+    },
+    {
+      "name": "dsh-wsl-workspace",
+      "kind": "package",
+      "version": "0.7.8",
+      "bundle": true
+    }
+  ]
+}

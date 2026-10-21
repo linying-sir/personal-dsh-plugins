@@ -2,8 +2,6 @@
 
 DeepSeek Harness 的界面缩放插件。左侧栏底部多一个 `Aa` 按钮，点开选 **100 / 125 / 150 / 175 / 200%**，整个界面立即按比例放大，选择会持久化，重启后保留。
 
-顺带把 WSL 工作区插件原本的裸字母 `W` 换成蓝紫渐变的圆角徽标（装了 `dsh-wsl-workspace` 时才可见）。
-
 > English: [README.en.md](README.en.md)
 
 ## 功能
@@ -35,7 +33,7 @@ dsh plugin --profile desktop add D:\repositories\personal-dsh-plugins\plugins\ui
 
 ## 使用
 
-1. 展开左侧栏，底部账号行上方会看到 `W`（装了 WSL 插件时）和 `Aa`。
+1. 展开左侧栏，底部账号行上方会看到 `Aa`。
 2. 点 `Aa`，在弹层里点一个比例。
 3. `100%` = 当前窗口的原生大小（复位）。
 
@@ -76,7 +74,7 @@ DSH 用 `getBoundingClientRect()`（视觉坐标，已经乘过倍率）计算�
 
 ## 卸载
 
-删除 `~\.dsh\profiles\desktop\cordis.patch.yml` 末尾的 `ui-scale` 插入块，重启 DSH。`W` 徽标样式也会一并消失。
+删除 `~\.dsh\profiles\desktop\cordis.patch.yml` 末尾的 `ui-scale` 插入块，重启 DSH。
 
 ## 许可
 
