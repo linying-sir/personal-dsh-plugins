@@ -14,8 +14,18 @@ window.__ModuleLoader__.load({
 
     const ICON = `
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-  <path d="M4 3.5 8 6.5l4-3M4 12.5 8 9.5l4 3M3 8h10"
-        stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="dscg-personal-gradient" x1="2" y1="2" x2="14" y2="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6aa2ff"/>
+      <stop offset="0.46" stop-color="#5b6cff"/>
+      <stop offset="1" stop-color="#9a5cff"/>
+    </linearGradient>
+  </defs>
+  <rect x="1.5" y="1.5" width="13" height="13" rx="3.8" fill="url(#dscg-personal-gradient)"/>
+  <g data-chevrons>
+    <path d="M4.4 7.7 8 4.1l3.6 3.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M4.4 11.9 8 8.3l3.6 3.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>`;
 
     const CSS = `
@@ -41,8 +51,9 @@ button[data-plugin="dsh-collapse-groups"]:focus-visible {
   outline: 2px solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: -2px;
 }
-button[data-plugin="dsh-collapse-groups"][data-mode="expand"] {
-  color: var(--dsw-alias-state-business-primary);
+button[data-plugin="dsh-collapse-groups"][data-mode="expand"] [data-chevrons] {
+  transform: rotate(180deg);
+  transform-origin: 8px 8px;
 }
 button[data-plugin="dsh-collapse-groups"]:disabled {
   opacity: 0.55;
