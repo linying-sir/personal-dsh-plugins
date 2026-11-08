@@ -141,22 +141,29 @@ button[data-plugin="dsh-collapse-groups"] svg {
 
     /** The button, created once and re-inserted if React replaces the header. */
     let button = null;
-    /** "collapse" = next press collapses; "expand" = next press restores. */
-    let mode = "collapse";
     /** Group keys that were expanded when the last collapse started. */
     let savedKeys = null;
     /** True while a collapse/restore pass is running. */
     let busy = false;
+    /** Ignore group mutations caused by this plugin's own clicks until this time. */
+    let internalUntil = 0;
     /** Set by cleanup so an in-flight pass stops touching the DOM. */
     let disposed = false;
 
     /** Update label, pressed state and visibility from the current state. */
     function renderButton() {
       if (button === null) return;
-      const hasGroups = groupRows().length > 0;
+      const rows = groupRows();
+      const hasGroups = rows.length > 0;
       button.style.display = hasGroups ? "" : "none";
       const zh = isChinese();
-      const expanding = mode === "expand";
+      // Restore is only the action when nothing is expanded and the last
+      // collapse left a remembered set. A manual expansion flips the button
+      // back to "collapse" through the aria-expanded observer.
+      const expanding =
+        rows.every((row) => row.getAttribute("aria-expanded") !== "true") &&
+        savedKeys !== null &&
+        savedKeys.size > 0;
       const label = expanding
         ? zh
           ? "展开上次折叠的分组"
@@ -167,7 +174,7 @@ button[data-plugin="dsh-collapse-groups"] svg {
       button.setAttribute("aria-label", label);
       button.title = label;
       button.setAttribute("aria-pressed", expanding ? "true" : "false");
-      button.dataset.mode = mode;
+      button.dataset.mode = expanding ? "expand" : "collapse";
     }
 
     /**
@@ -194,7 +201,7 @@ button[data-plugin="dsh-collapse-groups"] svg {
         await afterCommit();
       }
       if (disposed) return false;
-      mode = "expand";
+      internalUntil = performance.now() + 150;
       return true;
     }
 
@@ -217,11 +224,11 @@ button[data-plugin="dsh-collapse-groups"] svg {
       }
       if (disposed) return false;
       savedKeys = null;
-      mode = "collapse";
+      internalUntil = performance.now() + 150;
       return true;
     }
 
-    /** Collapse on one press, restore the previous expansion on the next. */
+    /** Collapse the current expansion, or restore it when nothing is expanded. */
     async function onClick(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -229,7 +236,10 @@ button[data-plugin="dsh-collapse-groups"] svg {
       busy = true;
       if (button !== null) button.disabled = true;
       try {
-        if (mode === "collapse") await collapseAll();
+        const hasExpanded = groupRows().some(
+          (row) => row.getAttribute("aria-expanded") === "true",
+        );
+        if (hasExpanded) await collapseAll();
         else await restoreAll();
       } finally {
         busy = false;
@@ -299,6 +309,24 @@ button[data-plugin="dsh-collapse-groups"] svg {
       };
       const observer = new MutationObserver(schedule);
       observer.observe(document.body, { childList: true, subtree: true });
+      const stateObserver = new MutationObserver((records) => {
+        if (busy || performance.now() < internalUntil) return;
+        for (const record of records) {
+          if (record.type !== "attributes" || record.attributeName !== "aria-expanded") continue;
+          const target = record.target;
+          if (!(target instanceof HTMLElement)) continue;
+          if (!(target.dataset.rowKey ?? "").startsWith("workspace:")) continue;
+          // A manual group change invalidates the remembered restore set.
+          savedKeys = null;
+          renderButton();
+          return;
+        }
+      });
+      stateObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ["aria-expanded"],
+        subtree: true,
+      });
       const languageObserver = new MutationObserver(() => renderButton());
       languageObserver.observe(document.documentElement, {
         attributes: true,
@@ -307,6 +335,7 @@ button[data-plugin="dsh-collapse-groups"] svg {
       return () => {
         disposed = true;
         observer.disconnect();
+        stateObserver.disconnect();
         languageObserver.disconnect();
         if (frame !== null) cancelAnimationFrame(frame);
         if (button !== null) {
@@ -315,7 +344,7 @@ button[data-plugin="dsh-collapse-groups"] svg {
         }
         removeStyles();
         savedKeys = null;
-        mode = "collapse";
+        internalUntil = 0;
         busy = false;
       };
     }

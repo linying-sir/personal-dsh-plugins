@@ -11,7 +11,7 @@ Adds one button to the workspace sidebar header: **collapse every expanded works
 - The button sits to the right of the search control and to the left of the view/add action strip; it is placed **outside** that strip so it never takes the space reserved for `dsh-wsl-workspace`'s `W`.
 - The icon is a **blue-violet gradient personal tile** (the same family as the WSL `W` badge) with white collapse chevrons; in restore mode the chevrons flip downward.
 - **First press** collapses every currently expanded workspace group. In tree mode children collapse before their parent.
-- **Second press** re-expands only the groups that were expanded when the collapse started; groups that were already collapsed stay collapsed.
+- **Second press** restores the last collapsed set only when nothing is expanded now. If you manually expand a group in between, the button switches back to "Collapse all groups"; the next press collapses the current expansion instead of restoring the old round.
 - In restore mode it sets `aria-pressed="true"` and its label becomes "Expand last collapsed groups".
 - The button hides itself when there are no workspace groups (flat mode, or no workspaces).
 - Group expansion is still owned and persisted by `ui-workspace`; the plugin does not change that store.
