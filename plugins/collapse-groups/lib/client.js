@@ -47,6 +47,10 @@ button[data-plugin="dsh-collapse-groups"][data-mode="expand"] {
 button[data-plugin="dsh-collapse-groups"]:disabled {
   opacity: 0.55;
 }
+/* Match the action strip's own search-expanded state. */
+[class*="_sectionHeader"]:has([class*="_headerActionsHidden"]) button[data-plugin="dsh-collapse-groups"] {
+  display: none !important;
+}
 button[data-plugin="dsh-collapse-groups"] svg {
   display: block;
 }
@@ -97,25 +101,31 @@ button[data-plugin="dsh-collapse-groups"] svg {
     }
 
     /**
-     * Find the workspace header's action row and the node before which the
-     * button should be inserted. `headerActions` is a CSS-module class, so the
-     * selector only relies on its stable suffix.
-     * @returns {container: HTMLElement, anchor: HTMLElement | null} | null
+     * Find the workspace section header and its action strip. The button is
+     * inserted into the header *beside* the strip, not inside it: dsh-wsl-workspace
+     * also mounts its W entry inside `_headerActions` and pins that strip to
+     * 92px, so a third button inside would clip the W.
+     * @returns {container: HTMLElement, anchor: HTMLElement, sample: Element | null} | null
      */
     function headerAnchor() {
       const containers = [...document.querySelectorAll('[class*="_headerActions"]')].filter(
         (node) => node instanceof HTMLElement,
       );
-      for (const container of containers) {
-        const add = [...container.querySelectorAll("button[aria-label]")].find(isAddWorkspaceButton);
+      for (const actions of containers) {
+        const header = actions.closest('[class*="_sectionHeader"]');
+        if (!(header instanceof HTMLElement)) continue;
+        const add = [...actions.querySelectorAll("button[aria-label]")].find(isAddWorkspaceButton);
         if (add instanceof HTMLElement) {
-          return {
-            container,
-            anchor: add.parentElement === container ? add : add.parentElement,
-          };
+          return { container: header, anchor: actions, sample: add };
         }
       }
-      return containers.length > 0 ? { container: containers[0], anchor: null } : null;
+      for (const actions of containers) {
+        const header = actions.closest('[class*="_sectionHeader"]');
+        if (header instanceof HTMLElement) {
+          return { container: header, anchor: actions, sample: actions.querySelector("button") };
+        }
+      }
+      return null;
     }
 
     /** The button, created once and re-inserted if React replaces the header. */
@@ -228,7 +238,7 @@ button[data-plugin="dsh-collapse-groups"] svg {
     }
 
     /**
-     * Keep exactly one plugin button inside the workspace header actions.
+     * Keep exactly one plugin button in the workspace section header.
      * React owns that row, so this runs again whenever the row is replaced.
      */
     function ensureButton() {
@@ -240,7 +250,7 @@ button[data-plugin="dsh-collapse-groups"] svg {
       if (
         button.isConnected &&
         button.parentElement instanceof HTMLElement &&
-        button.parentElement.matches('[class*="_headerActions"]')
+        button.parentElement.matches('[class*="_sectionHeader"]')
       ) {
         renderButton();
         return;
@@ -251,13 +261,14 @@ button[data-plugin="dsh-collapse-groups"] svg {
         return;
       }
       const sample =
-        found.anchor instanceof HTMLElement && found.anchor.tagName === "BUTTON"
-          ? found.anchor
-          : found.container.querySelector("button");
+        found.sample instanceof HTMLElement
+          ? found.sample
+          : found.anchor.querySelector("button");
       if (sample instanceof HTMLElement && sample.className !== "") {
         button.className = sample.className;
       }
-      found.container.insertBefore(button, found.anchor ?? null);
+      const anchor = found.anchor.parentElement === found.container ? found.anchor : null;
+      found.container.insertBefore(button, anchor);
       renderButton();
     }
 

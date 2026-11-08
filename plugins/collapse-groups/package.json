@@ -1,6 +1,6 @@
 {
   "name": "dsh-collapse-groups",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Collapse or restore every workspace group in the DeepSeek Harness sidebar from one header button",
   "license": "MIT",
   "author": "linying-sir",

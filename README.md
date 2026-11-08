@@ -16,7 +16,7 @@
 | --- | --- | --- |
 | [`ui-scale`](plugins/ui-scale) | 侧栏界面缩放（100 / 125 / 150 / 175 / 200%），选择重启后保留；修右栏宽度、浮层和轮次导航落点 | 0.1.2 |
 | [`wsl-badge`](plugins/wsl-badge) | 给 `dsh-wsl-workspace` 的侧栏 `W` 按钮加蓝紫渐变徽标；只注入 CSS，不改 WSL 代码 | 0.1.0 |
-| [`collapse-groups`](plugins/collapse-groups) | 工作区标题行加一个按钮：一键收起所有展开的工作区分组，再按一次恢复上次的分组 | 0.1.0 |
+| [`collapse-groups`](plugins/collapse-groups) | 工作区标题行加一个按钮：一键收起所有展开的工作区分组，再按一次恢复上次的分组 | 0.1.1 |
 
 **外部插件（不在本仓库复制代码）**
 
