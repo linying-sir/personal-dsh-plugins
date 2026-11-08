@@ -1,0 +1,47 @@
+{
+  "name": "dsh-collapse-groups",
+  "version": "0.1.0",
+  "description": "Collapse or restore every workspace group in the DeepSeek Harness sidebar from one header button",
+  "license": "MIT",
+  "author": "linying-sir",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "README.md",
+    "README.en.md"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "sidebar",
+    "workspace",
+    "collapse"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linying-sir/personal-dsh-plugins.git",
+    "directory": "plugins/collapse-groups"
+  },
+  "homepage": "https://github.com/linying-sir/personal-dsh-plugins/tree/main/plugins/collapse-groups",
+  "bugs": {
+    "url": "https://github.com/linying-sir/personal-dsh-plugins/issues"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

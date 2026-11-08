@@ -13,6 +13,11 @@
       "dir": "wsl-badge"
     },
     {
+      "id": "collapse-groups",
+      "kind": "path",
+      "dir": "collapse-groups"
+    },
+    {
       "name": "dsh-wsl-workspace",
       "kind": "package",
       "version": "0.7.8",

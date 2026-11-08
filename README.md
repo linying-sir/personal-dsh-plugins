@@ -16,6 +16,7 @@
 | --- | --- | --- |
 | [`ui-scale`](plugins/ui-scale) | 侧栏界面缩放（100 / 125 / 150 / 175 / 200%），选择重启后保留；修右栏宽度、浮层和轮次导航落点 | 0.1.2 |
 | [`wsl-badge`](plugins/wsl-badge) | 给 `dsh-wsl-workspace` 的侧栏 `W` 按钮加蓝紫渐变徽标；只注入 CSS，不改 WSL 代码 | 0.1.0 |
+| [`collapse-groups`](plugins/collapse-groups) | 工作区标题行加一个按钮：一键收起所有展开的工作区分组，再按一次恢复上次的分组 | 0.1.0 |
 
 **外部插件（不在本仓库复制代码）**
 
@@ -39,7 +40,7 @@ node scripts/install-profile.mjs --profile desktop --apply    # 真正写入
 安装器会：
 
 1. 按 `plugins/manifest.json` 执行 `dsh plugin add dsh-wsl-workspace@0.7.8`，并把它加进 profile 的 `dsh.profile.bundles`。
-2. 在 `~/.dsh/profiles/desktop/cordis.patch.yml` 末尾写入一个带标记的托管块，用**本机绝对路径**挂载 `ui-scale` 和 `wsl-badge`。
+2. 在 `~/.dsh/profiles/desktop/cordis.patch.yml` 末尾写入一个带标记的托管块，用**本机绝对路径**挂载 `ui-scale`、`wsl-badge` 和 `collapse-groups`。
 3. 修改前备份 `package.json` 和 `cordis.patch.yml`，文件名带时间戳。
 
 然后从托盘完全退出 DSH 再启动。
@@ -63,13 +64,15 @@ node scripts/install-profile.mjs --profile desktop --apply --dsh "C:\path\to\dsh
       name: 'D:/repositories/personal-dsh-plugins/plugins/ui-scale/lib/index.js'
     - id: wsl-badge
       name: 'D:/repositories/personal-dsh-plugins/plugins/wsl-badge/lib/index.js'
+    - id: collapse-groups
+      name: 'D:/repositories/personal-dsh-plugins/plugins/collapse-groups/lib/index.js'
 ```
 
 - `name` 是**宿主入口** `lib/index.js` 的绝对路径，Windows 下用正斜杠最稳。
 - 浏览器入口由插件的 `package.json` 里 `dsh.client` 声明，不需要写进 patch。
 - `wsl-badge` 需要先装好 `dsh-wsl-workspace`；没装时它不会报错，也不会显示任何东西。
 
-然后从托盘完全退出并重启 DSH。展开左侧栏，应看到 `Aa` 和带渐变徽标的 `W`。
+然后从托盘完全退出并重启 DSH。展开左侧栏，应看到 `Aa`、带渐变徽标的 `W`，以及工作区标题行里的「收起所有分组」按钮。
 
 ## 卸载
 
@@ -93,9 +96,13 @@ personal-dsh-plugins/
 │   │   ├── lib/index.js       # 宿主半：loopback 路由、读写偏好
 │   │   ├── lib/client.js      # 浏览器半：侧栏 Aa 按钮、样式、缩放逻辑
 │   │   └── package.json
-│   └── wsl-badge/             # WSL 按钮渐变徽标
+│   ├── wsl-badge/             # WSL 按钮渐变徽标
+│   │   ├── lib/index.js       # 宿主半：空模块
+│   │   ├── lib/client.js      # 浏览器半：只注入一段 CSS
+│   │   └── package.json
+│   └── collapse-groups/       # 一键收起/恢复工作区分组
 │       ├── lib/index.js       # 宿主半：空模块
-│       ├── lib/client.js      # 浏览器半：只注入一段 CSS
+│       ├── lib/client.js      # 浏览器半：标题行按钮 + 分组点击
 │       └── package.json
 ├── scripts/
 │   ├── check.mjs              # 清单字段、入口文件、JS 语法、manifest 完整性

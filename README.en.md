@@ -14,8 +14,9 @@ A personal collection of [DeepSeek Harness](https://deepseek.com) (DSH) plugins.
 
 | Plugin | What it does | Version |
 | --- | --- | --- |
-| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts | 0.1.1 |
+| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts | 0.1.2 |
 | [`wsl-badge`](plugins/wsl-badge) | Gradient badge for the `dsh-wsl-workspace` sidebar `W`; CSS-only, does not modify the WSL plugin | 0.1.0 |
+| [`collapse-groups`](plugins/collapse-groups) | One workspace-header button that collapses every expanded group, then restores the previous expansion | 0.1.0 |
 
 **External (not vendored here)**
 
@@ -39,7 +40,7 @@ node scripts/install-profile.mjs --profile desktop --apply    # write the change
 The installer:
 
 1. Runs `dsh plugin add dsh-wsl-workspace@0.7.8` and adds it to the profile's `dsh.profile.bundles`.
-2. Writes a marked managed block at the end of `~/.dsh/profiles/desktop/cordis.patch.yml` that mounts `ui-scale` and `wsl-badge` from this machine's repository path.
+2. Writes a marked managed block at the end of `~/.dsh/profiles/desktop/cordis.patch.yml` that mounts `ui-scale`, `wsl-badge` and `collapse-groups` from this machine's repository path.
 3. Backs up `package.json` and `cordis.patch.yml` with a timestamp before changing them.
 
 Then quit DSH completely from the tray and start it again.
@@ -63,13 +64,15 @@ Append this to `~/.dsh/profiles/desktop/cordis.patch.yml`:
       name: 'D:/repositories/personal-dsh-plugins/plugins/ui-scale/lib/index.js'
     - id: wsl-badge
       name: 'D:/repositories/personal-dsh-plugins/plugins/wsl-badge/lib/index.js'
+    - id: collapse-groups
+      name: 'D:/repositories/personal-dsh-plugins/plugins/collapse-groups/lib/index.js'
 ```
 
 - `name` is the absolute path of the **host entry** `lib/index.js`; forward slashes are safest on Windows.
 - The browser entry is declared by `dsh.client` in the plugin's `package.json`.
 - `wsl-badge` needs `dsh-wsl-workspace`; without it the stylesheet has no visible effect and does not error.
 
-Restart DSH afterwards. The sidebar should show `Aa` and the gradient `W`.
+Restart DSH afterwards. The sidebar should show `Aa`, the gradient `W`, and the "Collapse all groups" button in the workspace header row.
 
 ## Uninstall
 
@@ -93,9 +96,13 @@ personal-dsh-plugins/
 │   │   ├── lib/index.js       # host half: loopback route, preference file
 │   │   ├── lib/client.js      # browser half: sidebar Aa button, styles, scaling
 │   │   └── package.json
-│   └── wsl-badge/             # gradient W badge
+│   ├── wsl-badge/             # gradient W badge
+│   │   ├── lib/index.js       # host half: no-op
+│   │   ├── lib/client.js      # browser half: one stylesheet
+│   │   └── package.json
+│   └── collapse-groups/       # collapse/restore workspace groups
 │       ├── lib/index.js       # host half: no-op
-│       ├── lib/client.js      # browser half: one stylesheet
+│       ├── lib/client.js      # browser half: header button + group clicks
 │       └── package.json
 ├── scripts/
 │   ├── check.mjs              # manifest, entry files, JS syntax, inventory completeness
