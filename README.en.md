@@ -14,9 +14,9 @@ A personal collection of [DeepSeek Harness](https://deepseek.com) (DSH) plugins.
 
 | Plugin | What it does | Version |
 | --- | --- | --- |
-| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts | 0.1.2 |
-| [`wsl-badge`](plugins/wsl-badge) | Gradient badge for the `dsh-wsl-workspace` sidebar `W`; CSS-only, does not modify the WSL plugin | 0.1.0 |
-| [`collapse-groups`](plugins/collapse-groups) | One workspace-header button that collapses every expanded group, then restores the previous expansion | 0.1.4 |
+| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts | 0.1.3 |
+| [`wsl-badge`](plugins/wsl-badge) | Gradient badge for the `dsh-wsl-workspace` sidebar `W`; CSS-only, does not modify the WSL plugin | 0.1.1 |
+| [`collapse-groups`](plugins/collapse-groups) | One workspace-header button that collapses every expanded group, then restores the previous expansion | 0.1.5 |
 
 **External (not vendored here)**
 
@@ -90,19 +90,23 @@ and remove it from `dsh.profile.bundles`.
 
 ```
 personal-dsh-plugins/
+├── AGENTS.md                  # personal icon / visual conventions
 ├── plugins/
 │   ├── manifest.json          # inventory: local plugins + external versions
 │   ├── ui-scale/              # UI scale switcher
 │   │   ├── lib/index.js       # host half: loopback route, preference file
 │   │   ├── lib/client.js      # browser half: sidebar Aa button, styles, scaling
+│   │   ├── icon.svg / icon.png
 │   │   └── package.json
 │   ├── wsl-badge/             # gradient W badge
 │   │   ├── lib/index.js       # host half: no-op
 │   │   ├── lib/client.js      # browser half: one stylesheet
+│   │   ├── icon.svg / icon.png
 │   │   └── package.json
 │   └── collapse-groups/       # collapse/restore workspace groups
 │       ├── lib/index.js       # host half: no-op
 │       ├── lib/client.js      # browser half: header button + group clicks
+│       ├── icon.svg / icon.png
 │       └── package.json
 ├── scripts/
 │   ├── check.mjs              # manifest, entry files, JS syntax, inventory completeness
@@ -122,11 +126,16 @@ If you later need to change the WSL plugin's internal logic (not just CSS), fork
 ## Adding a plugin
 
 1. Copy `plugins/wsl-badge` or `plugins/ui-scale` to `plugins/<name>`, set `name` to `dsh-<name>` in `package.json`, and update `description` and `repository.directory`.
-2. Add `{ "id": "<name>", "kind": "path", "dir": "<name>" }` to `plugins/manifest.json`.
-3. Add an insert entry to the profile patch, or re-run the installer to refresh the managed block.
-4. Add the plugin to the table above and run `npm run check`.
+2. Prepare `icon.svg` (18×18) and `icon.png` per [AGENTS.md](AGENTS.md), and set `"icon": "./icon.svg"` in `package.json`.
+3. Add `{ "id": "<name>", "kind": "path", "dir": "<name>" }` to `plugins/manifest.json`.
+4. Add an insert entry to the profile patch, or re-run the installer to refresh the managed block.
+5. Add the plugin to the table above and run `npm run check`.
 
 If a plugin needs a build (TypeScript, a bundler, ...), commit the built files under `lib/` so the repository stays installable without a toolchain.
+
+## Icon conventions
+
+Every local plugin follows [AGENTS.md](AGENTS.md): an **18×18 blue-violet gradient tile with a white glyph** (the same family as the WSL `W`), inside DSH's standard 28×28 button. Text glyphs such as `Aa` use the same tile. The result reads slightly larger and fuller than DSH's 16×16 line icons without changing the button footprint.
 
 ## Conventions
 

@@ -13,18 +13,18 @@ window.__ModuleLoader__.load({
     const STYLE_SELECTOR = `style[data-plugin="${PLUGIN}"]`;
 
     const ICON = `
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+<svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
   <defs>
-    <linearGradient id="dscg-personal-gradient" x1="2" y1="2" x2="14" y2="14" gradientUnits="userSpaceOnUse">
+    <linearGradient id="dscg-personal-gradient" x1="2" y1="2" x2="16" y2="16" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#6aa2ff"/>
       <stop offset="0.46" stop-color="#5b6cff"/>
       <stop offset="1" stop-color="#9a5cff"/>
     </linearGradient>
   </defs>
-  <rect x="1.5" y="1.5" width="13" height="13" rx="3.8" fill="url(#dscg-personal-gradient)"/>
+  <rect x="0" y="0" width="18" height="18" rx="5.5" fill="url(#dscg-personal-gradient)"/>
   <g data-chevrons>
-    <path d="M4.4 7.7 8 4.1l3.6 3.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M4.4 11.9 8 8.3l3.6 3.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M4.6 8.9 9 4.5l4.4 4.4" stroke="#fff" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M4.6 13.5 9 9.1l4.4 4.4" stroke="#fff" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 </svg>`;
 
@@ -53,7 +53,7 @@ button[data-plugin="dsh-collapse-groups"]:focus-visible {
 }
 button[data-plugin="dsh-collapse-groups"][data-mode="expand"] [data-chevrons] {
   transform: rotate(180deg);
-  transform-origin: 8px 8px;
+  transform-origin: 9px 9px;
 }
 button[data-plugin="dsh-collapse-groups"]:disabled {
   opacity: 0.55;
@@ -64,6 +64,8 @@ button[data-plugin="dsh-collapse-groups"]:disabled {
 }
 button[data-plugin="dsh-collapse-groups"] svg {
   display: block;
+  width: 18px;
+  height: 18px;
 }
 `;
 

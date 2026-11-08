@@ -139,6 +139,24 @@ for (const directoryName of pluginDirectories) {
 
   requireFile(join(directory, "README.md"), `${directoryName}: README`);
 
+  // Personal icon convention from AGENTS.md: an 18x18 gradient tile plus a
+  // rendered 256px preview, declared through package.json#icon.
+  const iconSvg = join(directory, "icon.svg");
+  requireFile(iconSvg, `${directoryName}: icon.svg`);
+  requireFile(join(directory, "icon.png"), `${directoryName}: icon.png`);
+  if (manifest.icon !== "./icon.svg") {
+    fail(`${directoryName}/package.json: icon must be "./icon.svg"`);
+  }
+  if (existsSync(iconSvg)) {
+    const source = readFileSync(iconSvg, "utf8");
+    if (!source.includes('viewBox="0 0 18 18"')) {
+      fail(`${directoryName}: icon.svg must use viewBox="0 0 18 18"`);
+    }
+    if (!source.includes("linearGradient")) {
+      fail(`${directoryName}: icon.svg must carry the personal gradient`);
+    }
+  }
+
   for (const file of javascriptFiles(join(directory, "lib"))) {
     try {
       // `stdio: "ignore"` keeps this working in sandboxes that do not allow

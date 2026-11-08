@@ -1,5 +1,7 @@
 # dsh-wsl-badge
 
+![dsh-wsl-badge icon](icon.png)
+
 Replaces the `W` letter of the `dsh-wsl-workspace` sidebar action with a blue-violet gradient badge.
 
 The plugin injects one stylesheet and **does not modify the WSL plugin**, so upgrading `dsh-wsl-workspace` leaves the badge alone. It is also independent of `ui-scale`: scaling and badge styling can be enabled or disabled separately.

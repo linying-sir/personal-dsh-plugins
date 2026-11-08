@@ -1,5 +1,7 @@
 # dsh-wsl-badge
 
+![dsh-wsl-badge 图标](icon.png)
+
 给 `dsh-wsl-workspace` 侧栏底部的 `W` 按钮换一枚蓝紫渐变的圆角徽标。
 
 插件只向页面注入一段 CSS，**不修改 WSL 插件本身的代码**，所以 WSL 插件升级时徽标不受影响；它也不依赖 `ui-scale`，界面缩放和徽标可以各自开关。

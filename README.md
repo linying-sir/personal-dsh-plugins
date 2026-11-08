@@ -14,9 +14,9 @@
 
 | 插件 | 说明 | 版本 |
 | --- | --- | --- |
-| [`ui-scale`](plugins/ui-scale) | 侧栏界面缩放（100 / 125 / 150 / 175 / 200%），选择重启后保留；修右栏宽度、浮层和轮次导航落点 | 0.1.2 |
-| [`wsl-badge`](plugins/wsl-badge) | 给 `dsh-wsl-workspace` 的侧栏 `W` 按钮加蓝紫渐变徽标；只注入 CSS，不改 WSL 代码 | 0.1.0 |
-| [`collapse-groups`](plugins/collapse-groups) | 工作区标题行加一个按钮：一键收起所有展开的工作区分组，再按一次恢复上次的分组 | 0.1.4 |
+| [`ui-scale`](plugins/ui-scale) | 侧栏界面缩放（100 / 125 / 150 / 175 / 200%），选择重启后保留；修右栏宽度、浮层和轮次导航落点 | 0.1.3 |
+| [`wsl-badge`](plugins/wsl-badge) | 给 `dsh-wsl-workspace` 的侧栏 `W` 按钮加蓝紫渐变徽标；只注入 CSS，不改 WSL 代码 | 0.1.1 |
+| [`collapse-groups`](plugins/collapse-groups) | 工作区标题行加一个按钮：一键收起所有展开的工作区分组，再按一次恢复上次的分组 | 0.1.5 |
 
 **外部插件（不在本仓库复制代码）**
 
@@ -90,19 +90,23 @@ dsh plugin --profile desktop remove dsh-wsl-workspace
 
 ```
 personal-dsh-plugins/
+├── AGENTS.md                  # 个人插件图标/视觉约定
 ├── plugins/
 │   ├── manifest.json          # 插件清单：本地插件 + 外部插件版本
 │   ├── ui-scale/              # 界面缩放
 │   │   ├── lib/index.js       # 宿主半：loopback 路由、读写偏好
 │   │   ├── lib/client.js      # 浏览器半：侧栏 Aa 按钮、样式、缩放逻辑
+│   │   ├── icon.svg / icon.png
 │   │   └── package.json
 │   ├── wsl-badge/             # WSL 按钮渐变徽标
 │   │   ├── lib/index.js       # 宿主半：空模块
 │   │   ├── lib/client.js      # 浏览器半：只注入一段 CSS
+│   │   ├── icon.svg / icon.png
 │   │   └── package.json
 │   └── collapse-groups/       # 一键收起/恢复工作区分组
 │       ├── lib/index.js       # 宿主半：空模块
 │       ├── lib/client.js      # 浏览器半：标题行按钮 + 分组点击
+│       ├── icon.svg / icon.png
 │       └── package.json
 ├── scripts/
 │   ├── check.mjs              # 清单字段、入口文件、JS 语法、manifest 完整性
@@ -122,11 +126,16 @@ personal-dsh-plugins/
 ## 新增一个插件
 
 1. 复制 `plugins/wsl-badge` 或 `plugins/ui-scale` 为 `plugins/<name>`，把 `package.json` 的 `name` 改成 `dsh-<name>`，更新 `description`、`repository.directory`。
-2. 在 `plugins/manifest.json` 的 `plugins` 数组里加一项：本地插件用 `{ "id": "<name>", "kind": "path", "dir": "<name>" }`。
-3. 在 profile 的 `cordis.patch.yml` 加 insert（或重新运行安装器刷新托管块）。
-4. 更新本 README 的插件表，运行 `npm run check`。
+2. 按 [AGENTS.md](AGENTS.md) 准备 `icon.svg`（18×18）和 `icon.png`，在 `package.json` 写 `"icon": "./icon.svg"`。
+3. 在 `plugins/manifest.json` 的 `plugins` 数组里加一项：本地插件用 `{ "id": "<name>", "kind": "path", "dir": "<name>" }`。
+4. 在 profile 的 `cordis.patch.yml` 加 insert（或重新运行安装器刷新托管块）。
+5. 更新本 README 的插件表，运行 `npm run check`。
 
 需要构建的插件（TypeScript、打包器等）请把构建产物一并提交到 `lib/`，保证 clone 后无需构建即可用。
+
+## 图标约定
+
+所有本地插件遵循 [AGENTS.md](AGENTS.md)：图标是 **18×18 蓝紫渐变块 + 白色 glyph**（与 WSL 的 `W` 同族），按钮热区沿用 DSH 的 28×28；`Aa` 这类文字图标也放在同一渐变块里。视觉上比 DSH 原生 16×16 线性图标略大、颜色更满，但不会改变按钮占位。
 
 ## 开发约定
 

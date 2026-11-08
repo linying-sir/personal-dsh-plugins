@@ -93,24 +93,35 @@ window.__ModuleLoader__.load({
   color: var(--dsw-alias-label-primary);
 }
 .uis-glyph {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.04em;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #6aa2ff 0%, #5b6cff 46%, #9a5cff 100%);
+  box-shadow: 0 1px 2px rgba(18, 32, 70, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -0.06em;
   line-height: 1;
-  transform: translateY(-0.5px);
 }
-.uis-trigger--rail .uis-glyph { font-size: 15px; }
+.uis-trigger--rail .uis-glyph {
+  font-size: 10.5px;
+}
 .uis-dot {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 5px;
-  height: 5px;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--dsw-alias-state-business-primary);
-  box-shadow: 0 0 0 2px var(--dsw-specific-sidebar-fill, var(--dsw-alias-bg-layer-1));
+  background: #fff;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, #5b6cff 75%, transparent);
 }
-.uis-trigger--rail .uis-dot { top: 7px; right: 7px; }
+.uis-trigger--rail .uis-dot { top: 4px; right: 4px; }
 
 /* ---------- popover ---------- */
 .uis-pop {
