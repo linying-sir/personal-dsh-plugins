@@ -268,14 +268,6 @@ button[data-plugin="dsh-collapse-groups"] svg {
       for (const stale of document.querySelectorAll(`button[data-plugin="${PLUGIN}"]`)) {
         if (stale !== button) stale.remove();
       }
-      if (
-        button.isConnected &&
-        button.parentElement instanceof HTMLElement &&
-        button.parentElement.matches('[class*="_sectionHeader"]')
-      ) {
-        renderButton();
-        return;
-      }
       const found = headerAnchor();
       if (found === null) {
         button.style.display = "none";
@@ -289,7 +281,16 @@ button[data-plugin="dsh-collapse-groups"] svg {
         button.className = sample.className;
       }
       const anchor = found.anchor.parentElement === found.container ? found.anchor : null;
-      found.container.insertBefore(button, anchor);
+      const placed =
+        button.isConnected &&
+        button.parentElement === found.container &&
+        (anchor === null ? button.nextElementSibling === null : button.nextElementSibling === anchor);
+      if (!placed) {
+        // React can mount the label/search around our node when the sidebar
+        // collapses and expands; always put the button back just before the
+        // action strip rather than trusting its previous index.
+        found.container.insertBefore(button, anchor);
+      }
       renderButton();
     }
 

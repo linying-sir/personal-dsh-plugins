@@ -13,6 +13,7 @@ Adds one button to the workspace sidebar header: **collapse every expanded works
 - **First press** collapses every currently expanded workspace group. In tree mode children collapse before their parent.
 - **Second press** restores the last collapsed set only when nothing is expanded now. If you manually expand a group in between, the button switches back to "Collapse all groups"; the next press collapses the current expansion instead of restoring the old round.
 - In restore mode it sets `aria-pressed="true"` and its label becomes "Expand last collapsed groups".
+- After collapsing and expanding the sidebar, the button re-pins itself to the left of the action strip instead of drifting left of the "Workspaces" label.
 - The button hides itself when there are no workspace groups (flat mode, or no workspaces).
 - Group expansion is still owned and persisted by `ui-workspace`; the plugin does not change that store.
 
