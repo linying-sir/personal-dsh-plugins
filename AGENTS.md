@@ -34,9 +34,10 @@ background: linear-gradient(145deg, #6aa2ff 0%, #5b6cff 46%, #9a5cff 100%);
 
 ## 交互与共存
 
-- 按钮的悬浮解释统一用 `@deepseek-ai/dsh-client-ui-primitives` 的 `Tooltip`，**不要用原生 `title`**：浏览器默认提示偏小，和 DSH/WSL 的提示不一致。
-- **已知问题**：`ui-scale` 在 175% 下，共享 `Tooltip` 的 fixed portal 会被 body transform 和浮层修正影响，位置/字号可能异常。在 scale-aware 定位方案完成前，`ui-scale` 和 `collapse-groups` 暂时保留原生 `title`；不要直接照搬它们的写法。
-- 标题行按钮用 `side="bottom"`，底栏按钮用 `side="top"`，`delayMs={500}`；`label` 与 `aria-label` 保持一致。
+- 悬浮提示优先用 `@deepseek-ai/dsh-client-ui-primitives` 的 `Tooltip`；但在 175% 缩放下必须实际验证位置和字号，它的 fixed portal 可能被 body transform 影响。
+- 如果共享 Tooltip 在缩放后偏位，改用**锚定在按钮内部的 absolute tooltip**（参考 `ui-scale` 的 `.uis-tooltip` 和 `collapse-groups` 的 `.dscg-tooltip`）：不要 portal、不要 `position: fixed`、不要用原生 `title`。
+- 提示样式统一为 12px / 16px 行高、深色背景、白色文字、6px 圆角、500ms 延迟；提示随 body 一起缩放。
+- 标题行按钮的提示在按钮下方，底栏按钮的提示在按钮上方；`label` 与 `aria-label` 保持一致。
 - 不要挤占第三方已有的 DOM 宽度或座位：`dsh-wsl-workspace` 的 `_headerActions` 固定 92px，个人按钮要放在动作条外或另找位置。
 - 标题/`aria-label` 只描述动作；「个人」身份由图标表达，不加「个人」前缀。
 - 悬停、焦点沿用 DSH 的 token，不自定义颜色。
@@ -47,9 +48,9 @@ background: linear-gradient(145deg, #6aa2ff 0%, #5b6cff 46%, #9a5cff 100%);
 - [ ] 白色 glyph 清晰，描边 ≥1.5？
 - [ ] 按钮仍是 28×28（rail 36×36）？
 - [ ] 文字图标也用了同一渐变块？
-- [ ] 若使用共享 `Tooltip`，已在 175% 下确认 portal 位置和字号正常？
+- [ ] 若使用共享 `Tooltip`，已在 175% 下确认 portal 位置和字号正常；否则改用按钮内的 absolute tooltip？
 - [ ] `icon.svg` / `icon.png` / `package.json` 的 `icon` / README 预览齐了？
 
 ## English summary
 
-Every personal plugin uses the same blue-violet **18×18 gradient tile** with a white glyph inside DSH's standard **28×28** button. It reads slightly larger and fuller than DSH's 16×16 line icons. Text glyphs such as `Aa` use the same tile, never bare text. Hover labels should use the shared DSH `Tooltip`, but verify its portal placement at 175% first; the current ui-scale/collapse buttons keep a native `title` until that scale-aware fix lands. No second accent colour; respect third-party seats (for example the WSL `W` strip).
+Every personal plugin uses the same blue-violet **18×18 gradient tile** with a white glyph inside DSH's standard **28×28** button. It reads slightly larger and fuller than DSH's 16×16 line icons. Text glyphs such as `Aa` use the same tile, never bare text. Hover labels should use the shared DSH `Tooltip`, but at 175% verify its portal; if it drifts, anchor an absolute tooltip inside the button (12px, dark, 500ms) as `ui-scale` and `collapse-groups` do. No second accent colour; respect third-party seats (for example the WSL `W` strip).

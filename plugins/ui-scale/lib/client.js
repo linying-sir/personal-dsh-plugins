@@ -122,6 +122,50 @@ window.__ModuleLoader__.load({
   box-shadow: 0 0 0 1.5px color-mix(in srgb, #5b6cff 75%, transparent);
 }
 .uis-trigger--rail .uis-dot { top: 4px; right: 4px; }
+.uis-tooltip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  z-index: 2147483000;
+  max-width: 320px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #1f2329;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 16px;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.28);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms var(--ds-ease-in-out, ease), visibility 0s linear 500ms;
+}
+.uis-card > .uis-tooltip {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.uis-trigger:hover > .uis-tooltip,
+.uis-trigger:focus-visible > .uis-tooltip,
+.uis-card:hover > .uis-tooltip,
+.uis-card:focus-visible > .uis-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms var(--ds-ease-in-out, ease) 500ms, visibility 0s linear 500ms;
+}
+.uis-trigger[aria-expanded="true"] > .uis-tooltip {
+  opacity: 0;
+  visibility: hidden;
+}
+/* The panel sets width:100vw inline; inside the transformed body that is the
+   visual viewport and makes the fullscreen content centre to the left of the
+   real window. Use the body-local viewport width instead. */
+html[data-dsh-ui-zoom] [data-sidebar-right-panel="fullscreen"] {
+  width: var(--dsh-ui-viewport-width) !important;
+  --dsh-sidebar-width: var(--dsh-ui-viewport-width) !important;
+}
 
 /* ---------- popover ---------- */
 .uis-pop {
@@ -210,6 +254,7 @@ window.__ModuleLoader__.load({
   gap: 5px;
 }
 .uis-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -441,6 +486,7 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
         body.removeAttribute("data-dsh-ui-scale");
         document.documentElement.removeAttribute("data-dsh-ui-zoom");
         document.documentElement.style.removeProperty("--dsh-ui-scale");
+        document.documentElement.style.removeProperty("--dsh-ui-viewport-width");
         refreshFloatingPositions();
         scheduleFrameMeasure();
         return;
@@ -455,6 +501,7 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
       body.setAttribute("data-dsh-ui-scale", String(scale));
       document.documentElement.setAttribute("data-dsh-ui-zoom", "");
       document.documentElement.style.setProperty("--dsh-ui-scale", String(scale));
+      document.documentElement.style.setProperty("--dsh-ui-viewport-width", `calc(100vw / ${scale})`);
       refreshFloatingPositions();
       scheduleFrameMeasure();
     }
@@ -845,20 +892,25 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
         [],
       );
 
+      const triggerLabel = `${t("button.title")} · ${pct(scale)}`;
       const trigger = React.createElement(
         "button",
         {
           type: "button",
           ref: triggerRef,
           className: `uis-trigger${wide ? "" : " uis-trigger--rail"}`,
-          title: `${t("button.title")} · ${pct(scale)}`,
-          "aria-label": t("button.aria"),
+          "aria-label": triggerLabel,
           "aria-haspopup": "dialog",
           "aria-expanded": open,
           onClick: () => setOpen((value) => !value),
         },
         React.createElement("span", { className: "uis-glyph", "aria-hidden": "true" }, "Aa"),
         scale > 1 ? React.createElement("span", { className: "uis-dot", "aria-hidden": "true" }) : null,
+        React.createElement(
+          "span",
+          { className: "uis-tooltip", "aria-hidden": "true" },
+          triggerLabel,
+        ),
       );
 
       const picker = React.createElement(
@@ -881,10 +933,6 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
             "span",
             {
               className: "uis-current",
-              title:
-                baseline > 100
-                  ? `${t("panel.total")} ${Math.round((baseline / 100) * scale * 100)}%`
-                  : undefined,
             },
             pct(scale),
           ),
@@ -892,15 +940,16 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
         React.createElement(
           "div",
           { className: "uis-grid" },
-          LEVELS.map((level, index) =>
-            React.createElement(
+          LEVELS.map((level, index) => {
+            const levelLabel = `${pct(level)} · ${t(`level.${Math.round(level * 100)}`)}`;
+            return React.createElement(
               "button",
               {
                 key: level,
                 type: "button",
                 className: `uis-card${level === scale ? " uis-card--active" : ""}`,
+                "aria-label": levelLabel,
                 "aria-pressed": level === scale,
-                title: `${pct(level)} · ${t(`level.${Math.round(level * 100)}`)}`,
                 onClick: () => choose(level),
               },
               React.createElement(
@@ -913,8 +962,13 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
                 "A",
               ),
               React.createElement("span", { className: "uis-pct" }, pct(level)),
-            ),
-          ),
+              React.createElement(
+                "span",
+                { className: "uis-tooltip", "aria-hidden": "true" },
+                levelLabel,
+              ),
+            );
+          }),
         ),
         React.createElement(
           "div",

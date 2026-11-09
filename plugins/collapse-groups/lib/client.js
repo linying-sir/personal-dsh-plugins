@@ -67,6 +67,41 @@ button[data-plugin="dsh-collapse-groups"] svg {
   width: 18px;
   height: 18px;
 }
+button[data-plugin="dsh-collapse-groups"] {
+  position: relative;
+}
+.dscg-tooltip {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  z-index: 2147483000;
+  max-width: 320px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #1f2329;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 16px;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.28);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%);
+  transition: opacity 120ms var(--ds-ease-in-out, ease), visibility 0s linear 500ms;
+}
+button[data-plugin="dsh-collapse-groups"]:hover > .dscg-tooltip,
+button[data-plugin="dsh-collapse-groups"]:focus-visible > .dscg-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms var(--ds-ease-in-out, ease) 500ms, visibility 0s linear 500ms;
+}
+[class*="_sectionHeader"]:has(button[data-plugin="dsh-collapse-groups"]:hover),
+[class*="_sectionHeader"]:has(button[data-plugin="dsh-collapse-groups"]:focus-visible) {
+  overflow: visible;
+}
 `;
 
     /** Inject the plugin stylesheet once. */
@@ -174,9 +209,10 @@ button[data-plugin="dsh-collapse-groups"] svg {
           ? "收起所有分组"
           : "Collapse all groups";
       button.setAttribute("aria-label", label);
-      button.title = label;
       button.setAttribute("aria-pressed", expanding ? "true" : "false");
       button.dataset.mode = expanding ? "expand" : "collapse";
+      const tooltip = button.querySelector(".dscg-tooltip");
+      if (tooltip instanceof HTMLElement) tooltip.textContent = label;
     }
 
     /**
@@ -256,6 +292,11 @@ button[data-plugin="dsh-collapse-groups"] svg {
       element.type = "button";
       element.setAttribute("data-plugin", PLUGIN);
       element.innerHTML = ICON;
+      const tooltip = document.createElement("span");
+      tooltip.className = "dscg-tooltip";
+      tooltip.setAttribute("role", "tooltip");
+      tooltip.setAttribute("aria-hidden", "true");
+      element.appendChild(tooltip);
       element.addEventListener("click", onClick);
       return element;
     }
