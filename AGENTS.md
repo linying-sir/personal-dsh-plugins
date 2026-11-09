@@ -38,6 +38,7 @@ background: linear-gradient(145deg, #6aa2ff 0%, #5b6cff 46%, #9a5cff 100%);
 - 如果共享 Tooltip 在缩放后偏位，改用**锚定在按钮内部的 absolute tooltip**（参考 `ui-scale` 的 `.uis-tooltip` 和 `collapse-groups` 的 `.dscg-tooltip`）：不要 portal、不要 `position: fixed`、不要用原生 `title`。
 - 提示样式统一为 12px / 16px 行高、深色背景、白色文字、6px 圆角、500ms 延迟；提示随 body 一起缩放。
 - 标题行按钮的提示在按钮下方，底栏按钮的提示在按钮上方；`label` 与 `aria-label` 保持一致。
+- 缩放后检查右栏分隔手柄：用面板实际宽度把 `[data-side="rightbar"]` 对齐到面板边缘，并扩大命中区；否则 175% 下会拖不到。
 - 不要挤占第三方已有的 DOM 宽度或座位：`dsh-wsl-workspace` 的 `_headerActions` 固定 92px，个人按钮要放在动作条外或另找位置。
 - 标题/`aria-label` 只描述动作；「个人」身份由图标表达，不加「个人」前缀。
 - 悬停、焦点沿用 DSH 的 token，不自定义颜色。

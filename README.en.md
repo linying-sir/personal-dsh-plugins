@@ -14,7 +14,7 @@ A personal collection of [DeepSeek Harness](https://deepseek.com) (DSH) plugins.
 
 | Plugin | What it does | Version |
 | --- | --- | --- |
-| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts; fixes right-panel width, fullscreen centring and overlays | 0.1.6 |
+| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts; fixes right-panel width, fullscreen centring and overlays | 0.1.7 |
 | [`wsl-badge`](plugins/wsl-badge) | Gradient badge for the `dsh-wsl-workspace` sidebar `W`; CSS-only, does not modify the WSL plugin | 0.1.1 |
 | [`collapse-groups`](plugins/collapse-groups) | One workspace-header button that collapses every expanded group, then restores the previous expansion | 0.1.8 |
 

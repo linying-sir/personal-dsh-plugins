@@ -166,6 +166,14 @@ html[data-dsh-ui-zoom] [data-sidebar-right-panel="fullscreen"] {
   width: var(--dsh-ui-viewport-width) !important;
   --dsh-sidebar-width: var(--dsh-ui-viewport-width) !important;
 }
+/* The stock 8px handle shrinks to a hard-to-hit strip after the body scale;
+   widen its hit area around the visual column edge. */
+html[data-dsh-ui-zoom] [data-side="rightbar"] {
+  left: calc(var(--dsh-ui-viewport-width) - var(--dsh-ui-rightbar-width, 0px)) !important;
+  right: auto !important;
+  width: 24px !important;
+  margin-left: -12px !important;
+}
 
 /* ---------- popover ---------- */
 .uis-pop {
@@ -487,6 +495,7 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
         document.documentElement.removeAttribute("data-dsh-ui-zoom");
         document.documentElement.style.removeProperty("--dsh-ui-scale");
         document.documentElement.style.removeProperty("--dsh-ui-viewport-width");
+        document.documentElement.style.removeProperty("--dsh-ui-rightbar-width");
         refreshFloatingPositions();
         scheduleFrameMeasure();
         return;
@@ -504,6 +513,7 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
       document.documentElement.style.setProperty("--dsh-ui-viewport-width", `calc(100vw / ${scale})`);
       refreshFloatingPositions();
       scheduleFrameMeasure();
+      requestAnimationFrame(syncRightbarHandleWidth);
     }
 
     /** The three-column frame that owns the left, center and right tracks. */
@@ -559,6 +569,20 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
       });
     }
 
+    /** Keep the rightbar resize handle aligned with the panel's visible edge. */
+    function syncRightbarHandleWidth() {
+      if (typeof document === "undefined") return;
+      const panel = document.querySelector("[data-sidebar-right-panel]");
+      if (!(panel instanceof HTMLElement)) return;
+      const width = panel.getBoundingClientRect().width / (cssScale || 1);
+      if (width > 0) {
+        document.documentElement.style.setProperty(
+          "--dsh-ui-rightbar-width",
+          `${Math.round(width * 100) / 100}px`,
+        );
+      }
+    }
+
     /** Install the frame patch and force one local measurement after a scale change. */
     function scheduleFrameMeasure() {
       if (typeof requestAnimationFrame !== "function") return;
@@ -578,14 +602,61 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
      * panel, and re-measure on viewport changes.
      */
     function installFrameMeasurement() {
-      patchFrameMeasurement();
-      forceFrameMeasure();
-      const onPointerDown = () => patchFrameMeasurement();
+      let pollFrame = 0;
+      let attempts = 0;
+      const ensureFrame = () => {
+        const frame = frameElement();
+        if (frame !== null) {
+          patchFrameMeasurement();
+          forceFrameMeasure();
+          if (frame.__dshUiScaleRect === true) return;
+        }
+        if (attempts < 180) {
+          attempts += 1;
+          pollFrame = requestAnimationFrame(ensureFrame);
+        }
+      };
+      ensureFrame();
+      const onPointerDown = () => {
+        patchFrameMeasurement();
+        forceFrameMeasure();
+      };
       document.addEventListener("pointerdown", onPointerDown, true);
       const onResize = () => scheduleFrameMeasure();
       window.addEventListener("resize", onResize);
       return () => {
+        if (pollFrame !== 0) cancelAnimationFrame(pollFrame);
         document.removeEventListener("pointerdown", onPointerDown, true);
+        window.removeEventListener("resize", onResize);
+      };
+    }
+
+    /** Track the rightbar panel width so the resize handle sits on its edge. */
+    function installRightbarHandleAnchor() {
+      let observer = null;
+      let pollFrame = 0;
+      let attempts = 0;
+      const attach = () => {
+        const panel = document.querySelector("[data-sidebar-right-panel]");
+        if (panel instanceof HTMLElement) {
+          syncRightbarHandleWidth();
+          if (typeof ResizeObserver === "function") {
+            observer = new ResizeObserver(() => syncRightbarHandleWidth());
+            observer.observe(panel);
+          }
+          return;
+        }
+        if (attempts < 180) {
+          attempts += 1;
+          pollFrame = requestAnimationFrame(attach);
+        }
+      };
+      attach();
+      const onResize = () => syncRightbarHandleWidth();
+      window.addEventListener("resize", onResize);
+      return () => {
+        if (pollFrame !== 0) cancelAnimationFrame(pollFrame);
+        if (observer !== null) observer.disconnect();
         window.removeEventListener("resize", onResize);
       };
     }
@@ -1001,6 +1072,8 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
       ctx.effect(() => installApprovalFollowRepair(), "ui-scale: approval follow repair");
 
       ctx.effect(() => installFrameMeasurement(), "ui-scale: frame measurement");
+
+      ctx.effect(() => installRightbarHandleAnchor(), "ui-scale: rightbar handle anchor");
 
       ctx.effect(() => installTurnNavigationRepair(), "ui-scale: turn navigation");
 
