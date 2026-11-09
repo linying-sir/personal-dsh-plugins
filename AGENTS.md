@@ -43,6 +43,12 @@ background: linear-gradient(145deg, #6aa2ff 0%, #5b6cff 46%, #9a5cff 100%);
 - 标题/`aria-label` 只描述动作；「个人」身份由图标表达，不加「个人」前缀。
 - 悬停、焦点沿用 DSH 的 token，不自定义颜色。
 
+## 宿主插件
+
+- **不要全局删除 `ELECTRON_RUN_AS_NODE`**。DSH 的 Windows job runner、Node bootstrap 等内部子进程依赖它；全局删除会让 agent 的 shell 直接失效。
+- 只在启动 GUI Electron 应用（`Code.exe`、`Cursor.exe` 等）时，从该次 spawn 的子进程环境里定向删除；参考 `electron-env` 的 `child_process.spawn` 包装。
+- 宿主插件改动只有**完全重启 DSH** 才会生效，刷新页面不够。
+
 ## 新插件检查表
 
 - [ ] 图标是 18×18 渐变块，不是 16×16 线性图标？

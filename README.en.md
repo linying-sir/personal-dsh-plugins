@@ -17,7 +17,7 @@ A personal collection of [DeepSeek Harness](https://deepseek.com) (DSH) plugins.
 | [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts; fixes right-panel width, fullscreen centring, overlays, menu placement | 0.1.8 |
 | [`wsl-badge`](plugins/wsl-badge) | Gradient badge for the `dsh-wsl-workspace` sidebar `W`; CSS-only, does not modify the WSL plugin | 0.1.1 |
 | [`collapse-groups`](plugins/collapse-groups) | One workspace-header button that collapses every expanded group, then restores the previous expansion | 0.1.8 |
-| [`electron-env`](plugins/electron-env) | Host-only helper that clears inherited `ELECTRON_RUN_AS_NODE` so Open In can launch VS Code / Cursor | 0.1.0 |
+| [`electron-env`](plugins/electron-env) | Host-only helper that strips inherited `ELECTRON_RUN_AS_NODE` only for GUI Electron apps launched by Open In | 0.1.1 |
 
 **External (not vendored here)**
 

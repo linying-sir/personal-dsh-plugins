@@ -1,6 +1,6 @@
 {
   "name": "dsh-electron-env",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Clear the inherited ELECTRON_RUN_AS_NODE selector so Open In can launch VS Code, Cursor and other GUI Electron apps",
   "icon": "./icon.svg",
   "license": "MIT",
