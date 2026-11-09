@@ -18,6 +18,11 @@
       "dir": "collapse-groups"
     },
     {
+      "id": "electron-env",
+      "kind": "path",
+      "dir": "electron-env"
+    },
+    {
       "name": "dsh-wsl-workspace",
       "kind": "package",
       "version": "0.7.8",

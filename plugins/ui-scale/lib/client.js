@@ -685,6 +685,12 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
       }
     }
 
+    /** Menus re-measure on every interaction; pin their first corrected spot. */
+    function isMenuElement(element) {
+      const role = element.getAttribute("role");
+      return role === "menu" || role === "listbox" || element.querySelector('[role="menuitem"]') !== null;
+    }
+
     /**
      * Rewrite one floating surface's inline coordinates into body-local space.
      * @param element - candidate fixed-position element.
@@ -703,9 +709,20 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
       const alreadyApplied =
         state !== undefined &&
         !force &&
-        Math.abs(numericLeft - state.appliedLeft) < 0.5 &&
-        Math.abs(numericTop - state.appliedTop) < 0.5;
+        Math.abs(numericLeft - state.appliedLeft) < 3 &&
+        Math.abs(numericTop - state.appliedTop) < 3;
       if (alreadyApplied) return;
+      if (state !== undefined && !force && isMenuElement(element)) {
+        // DSH re-anchors menus on focus/click. Restore the corrected position
+        // instead of dividing the new measurement again.
+        if (Math.abs(numericLeft - state.appliedLeft) >= 0.5) {
+          element.style.left = `${state.appliedLeft}px`;
+        }
+        if (Math.abs(numericTop - state.appliedTop) >= 0.5) {
+          element.style.top = `${state.appliedTop}px`;
+        }
+        return;
+      }
       const rawLeft = force && state !== undefined ? state.rawLeft : numericLeft;
       const rawTop = force && state !== undefined ? state.rawTop : numericTop;
       const appliedLeft = rawLeft / cssScale;

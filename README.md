@@ -14,9 +14,10 @@
 
 | 插件 | 说明 | 版本 |
 | --- | --- | --- |
-| [`ui-scale`](plugins/ui-scale) | 侧栏界面缩放（100 / 125 / 150 / 175 / 200%），选择重启后保留；修右栏宽度、全屏居中、浮层和轮次导航落点 | 0.1.7 |
+| [`ui-scale`](plugins/ui-scale) | 侧栏界面缩放（100 / 125 / 150 / 175 / 200%），选择重启后保留；修右栏宽度、全屏居中、浮层、菜单定位和轮次导航落点 | 0.1.8 |
 | [`wsl-badge`](plugins/wsl-badge) | 给 `dsh-wsl-workspace` 的侧栏 `W` 按钮加蓝紫渐变徽标；只注入 CSS，不改 WSL 代码 | 0.1.1 |
 | [`collapse-groups`](plugins/collapse-groups) | 工作区标题行加一个按钮：一键收起所有展开的工作区分组，再按一次恢复上次的分组 | 0.1.8 |
+| [`electron-env`](plugins/electron-env) | 宿主插件：清掉继承的 `ELECTRON_RUN_AS_NODE`，让 Open In 能启动 VS Code / Cursor | 0.1.0 |
 
 **外部插件（不在本仓库复制代码）**
 
@@ -103,9 +104,13 @@ personal-dsh-plugins/
 │   │   ├── lib/client.js      # 浏览器半：只注入一段 CSS
 │   │   ├── icon.svg / icon.png
 │   │   └── package.json
-│   └── collapse-groups/       # 一键收起/恢复工作区分组
-│       ├── lib/index.js       # 宿主半：空模块
-│       ├── lib/client.js      # 浏览器半：标题行按钮 + 分组点击
+│   ├── collapse-groups/       # 一键收起/恢复工作区分组
+│   │   ├── lib/index.js       # 宿主半：空模块
+│   │   ├── lib/client.js      # 浏览器半：标题行按钮 + 分组点击
+│   │   ├── icon.svg / icon.png
+│   │   └── package.json
+│   └── electron-env/          # 清掉 ELECTRON_RUN_AS_NODE
+│       ├── lib/index.js       # 宿主半：让 Open In 能启动 GUI Electron 应用
 │       ├── icon.svg / icon.png
 │       └── package.json
 ├── scripts/

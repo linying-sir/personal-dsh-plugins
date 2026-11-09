@@ -14,9 +14,10 @@ A personal collection of [DeepSeek Harness](https://deepseek.com) (DSH) plugins.
 
 | Plugin | What it does | Version |
 | --- | --- | --- |
-| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts; fixes right-panel width, fullscreen centring and overlays | 0.1.7 |
+| [`ui-scale`](plugins/ui-scale) | Sidebar UI scale switcher (100 / 125 / 150 / 175 / 200%) with a preference that survives restarts; fixes right-panel width, fullscreen centring, overlays, menu placement | 0.1.8 |
 | [`wsl-badge`](plugins/wsl-badge) | Gradient badge for the `dsh-wsl-workspace` sidebar `W`; CSS-only, does not modify the WSL plugin | 0.1.1 |
 | [`collapse-groups`](plugins/collapse-groups) | One workspace-header button that collapses every expanded group, then restores the previous expansion | 0.1.8 |
+| [`electron-env`](plugins/electron-env) | Host-only helper that clears inherited `ELECTRON_RUN_AS_NODE` so Open In can launch VS Code / Cursor | 0.1.0 |
 
 **External (not vendored here)**
 
@@ -103,9 +104,13 @@ personal-dsh-plugins/
 │   │   ├── lib/client.js      # browser half: one stylesheet
 │   │   ├── icon.svg / icon.png
 │   │   └── package.json
-│   └── collapse-groups/       # collapse/restore workspace groups
-│       ├── lib/index.js       # host half: no-op
-│       ├── lib/client.js      # browser half: header button + group clicks
+│   ├── collapse-groups/       # collapse/restore workspace groups
+│   │   ├── lib/index.js       # host half: no-op
+│   │   ├── lib/client.js      # browser half: header button + group clicks
+│   │   ├── icon.svg / icon.png
+│   │   └── package.json
+│   └── electron-env/          # clear ELECTRON_RUN_AS_NODE
+│       ├── lib/index.js       # host half: let Open In launch GUI Electron apps
 │       ├── icon.svg / icon.png
 │       └── package.json
 ├── scripts/
