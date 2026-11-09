@@ -8,7 +8,7 @@ A UI scale switcher for DeepSeek Harness. An `Aa` button appears at the bottom o
 
 ## Features
 
-- The sidebar `Aa` trigger is an **18×18 personal gradient tile**, following the repository's [AGENTS.md](../../AGENTS.md); its hover label uses the shared DSH `Tooltip`, matching standard buttons such as `W`. The five-step flyout has `aria-*` attributes and keyboard support (`Esc` closes).
+- The sidebar `Aa` trigger is an **18×18 personal gradient tile**, following the repository's [AGENTS.md](../../AGENTS.md); the five-step flyout has `aria-*` attributes and keyboard support (`Esc` closes).
 - The choice is written to `~/.dsh/ui-scale.json` through a loopback-only host route (`/ui-scale/api`); `localStorage` is only a first-paint cache, so the scale survives a restart.
 - `100%` means "the window's current baseline". If the window already starts at 125% zoom, the flyout shows "Window base 125%" so the two layers are not confused.
 - Compensates for floating-surface placement, right-panel width, approval-card focus scrolling and the turn-navigation landing after scaling; the rail marks are also a little thicker when zoomed (see below).
