@@ -5,6 +5,10 @@ window.__ModuleLoader__.load({
     var exports = module.exports;
     Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 
+    const React = require("react");
+    const ReactDOMClient = require("react-dom/client");
+    const { Tooltip } = require("@deepseek-ai/dsh-client-ui-primitives");
+
     /** The plugin's own attribute value; also namespaces its stylesheet. */
     const PLUGIN = "dsh-collapse-groups";
     /** Workspace group rows: stable semantic attributes, not CSS-module classes. */
@@ -29,6 +33,13 @@ window.__ModuleLoader__.load({
 </svg>`;
 
     const CSS = `
+.dscg-host {
+  display: inline-flex;
+  flex: none;
+}
+.dscg-icon {
+  display: inline-flex;
+}
 button[data-plugin="dsh-collapse-groups"]:not([class*="iconButton"]) {
   display: inline-flex;
   align-items: center;
@@ -141,8 +152,14 @@ button[data-plugin="dsh-collapse-groups"] svg {
       return null;
     }
 
-    /** The button, created once and re-inserted if React replaces the header. */
-    let button = null;
+    /** The host span owned by this plugin; React renders the tooltip and button inside it. */
+    let host = null;
+    /** React root mounted into `host`. */
+    let root = null;
+    /** Class list copied from the shipped header button. */
+    let buttonClass = "";
+    /** Last rendered React props, so unrelated DOM mutations do not re-render. */
+    let lastRenderKey = "";
     /** Group keys that were expanded when the last collapse started. */
     let savedKeys = null;
     /** True while a collapse/restore pass is running. */
@@ -152,12 +169,38 @@ button[data-plugin="dsh-collapse-groups"] svg {
     /** Set by cleanup so an in-flight pass stops touching the DOM. */
     let disposed = false;
 
+    /** The button wrapped in the same Tooltip primitive the shipped controls use. */
+    function CollapseButton({ label, mode, className, disabled, onClick }) {
+      return React.createElement(
+        Tooltip,
+        { label, side: "bottom", delayMs: 500 },
+        React.createElement(
+          "button",
+          {
+            type: "button",
+            className,
+            "data-plugin": PLUGIN,
+            "data-mode": mode,
+            "aria-label": label,
+            "aria-pressed": mode === "expand" ? "true" : "false",
+            disabled,
+            onClick,
+          },
+          React.createElement("span", {
+            className: "dscg-icon",
+            "aria-hidden": "true",
+            dangerouslySetInnerHTML: { __html: ICON },
+          }),
+        ),
+      );
+    }
+
     /** Update label, pressed state and visibility from the current state. */
     function renderButton() {
-      if (button === null) return;
+      if (host === null || root === null) return;
       const rows = groupRows();
       const hasGroups = rows.length > 0;
-      button.style.display = hasGroups ? "" : "none";
+      host.style.display = hasGroups ? "" : "none";
       const zh = isChinese();
       // Restore is only the action when nothing is expanded and the last
       // collapse left a remembered set. A manual expansion flips the button
@@ -173,10 +216,20 @@ button[data-plugin="dsh-collapse-groups"] svg {
         : zh
           ? "收起所有分组"
           : "Collapse all groups";
-      button.setAttribute("aria-label", label);
-      button.title = label;
-      button.setAttribute("aria-pressed", expanding ? "true" : "false");
-      button.dataset.mode = expanding ? "expand" : "collapse";
+      const mode = expanding ? "expand" : "collapse";
+      const className = buttonClass === "" ? "dscg-button" : buttonClass;
+      const key = `${label}|${mode}|${className}|${String(busy)}`;
+      if (key === lastRenderKey) return;
+      lastRenderKey = key;
+      root.render(
+        React.createElement(CollapseButton, {
+          label,
+          mode,
+          className,
+          disabled: busy,
+          onClick,
+        }),
+      );
     }
 
     /**
@@ -236,7 +289,7 @@ button[data-plugin="dsh-collapse-groups"] svg {
       event.stopPropagation();
       if (busy) return;
       busy = true;
-      if (button !== null) button.disabled = true;
+      renderButton();
       try {
         const hasExpanded = groupRows().some(
           (row) => row.getAttribute("aria-expanded") === "true",
@@ -245,53 +298,54 @@ button[data-plugin="dsh-collapse-groups"] svg {
         else await restoreAll();
       } finally {
         busy = false;
-        if (button !== null) button.disabled = false;
         renderButton();
       }
     }
 
-    /** Create the header button once. */
-    function createButton() {
-      const element = document.createElement("button");
-      element.type = "button";
-      element.setAttribute("data-plugin", PLUGIN);
-      element.innerHTML = ICON;
-      element.addEventListener("click", onClick);
+    /** Create the React host that will carry the Tooltip and button. */
+    function createHost() {
+      const element = document.createElement("span");
+      element.className = "dscg-host";
+      element.setAttribute("data-plugin-host", PLUGIN);
+      root = ReactDOMClient.createRoot(element);
       return element;
     }
 
     /**
-     * Keep exactly one plugin button in the workspace section header.
+     * Keep exactly one plugin host in the workspace section header.
      * React owns that row, so this runs again whenever the row is replaced.
      */
     function ensureButton() {
       if (typeof document === "undefined" || document.body === null) return;
-      if (button === null) button = createButton();
-      for (const stale of document.querySelectorAll(`button[data-plugin="${PLUGIN}"]`)) {
-        if (stale !== button) stale.remove();
+      if (host === null) host = createHost();
+      for (const stale of document.querySelectorAll(`span[data-plugin-host="${PLUGIN}"]`)) {
+        if (stale !== host) stale.remove();
       }
       const found = headerAnchor();
       if (found === null) {
-        button.style.display = "none";
+        host.style.display = "none";
         return;
       }
       const sample =
         found.sample instanceof HTMLElement
           ? found.sample
           : found.anchor.querySelector("button");
-      if (sample instanceof HTMLElement && sample.className !== "") {
-        button.className = sample.className;
+      const nextClass =
+        sample instanceof HTMLElement && sample.className !== "" ? sample.className : "";
+      if (nextClass !== buttonClass) {
+        buttonClass = nextClass;
+        lastRenderKey = "";
       }
       const anchor = found.anchor.parentElement === found.container ? found.anchor : null;
       const placed =
-        button.isConnected &&
-        button.parentElement === found.container &&
-        (anchor === null ? button.nextElementSibling === null : button.nextElementSibling === anchor);
+        host.isConnected &&
+        host.parentElement === found.container &&
+        (anchor === null ? host.nextElementSibling === null : host.nextElementSibling === anchor);
       if (!placed) {
         // React can mount the label/search around our node when the sidebar
-        // collapses and expands; always put the button back just before the
+        // collapses and expands; always put the host back just before the
         // action strip rather than trusting its previous index.
-        found.container.insertBefore(button, anchor);
+        found.container.insertBefore(host, anchor);
       }
       renderButton();
     }
@@ -341,14 +395,20 @@ button[data-plugin="dsh-collapse-groups"] svg {
         stateObserver.disconnect();
         languageObserver.disconnect();
         if (frame !== null) cancelAnimationFrame(frame);
-        if (button !== null) {
-          button.remove();
-          button = null;
+        if (root !== null) {
+          root.unmount();
+          root = null;
+        }
+        if (host !== null) {
+          host.remove();
+          host = null;
         }
         removeStyles();
         savedKeys = null;
         internalUntil = 0;
         busy = false;
+        buttonClass = "";
+        lastRenderKey = "";
       };
     }
 

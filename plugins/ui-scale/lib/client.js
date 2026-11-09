@@ -6,6 +6,7 @@ window.__ModuleLoader__.load({
     Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 
     const React = require("react");
+    const { Tooltip } = require("@deepseek-ai/dsh-client-ui-primitives");
 
     /** Locale namespace owned by this plugin. */
     const NS = "uiScale";
@@ -789,7 +790,6 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
       const scale = React.useSyncExternalStore(subscribeScale, getScale, () => 1);
       const [open, setOpen] = React.useState(false);
       const rootRef = React.useRef(null);
-      const triggerRef = React.useRef(null);
 
       React.useEffect(() => {
         if (!open) return undefined;
@@ -800,7 +800,7 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
         const onKeyDown = (event) => {
           if (event.key !== "Escape") return;
           setOpen(false);
-          triggerRef.current?.focus();
+          rootRef.current?.querySelector(".uis-trigger")?.focus();
         };
         document.addEventListener("pointerdown", onPointerDown, true);
         document.addEventListener("keydown", onKeyDown);
@@ -823,20 +823,27 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
         [],
       );
 
+      const triggerLabel = `${t("button.title")} · ${pct(scale)}`;
       const trigger = React.createElement(
-        "button",
+        Tooltip,
         {
-          type: "button",
-          ref: triggerRef,
-          className: `uis-trigger${wide ? "" : " uis-trigger--rail"}`,
-          title: `${t("button.title")} · ${pct(scale)}`,
-          "aria-label": t("button.aria"),
-          "aria-haspopup": "dialog",
-          "aria-expanded": open,
-          onClick: () => setOpen((value) => !value),
+          label: triggerLabel,
+          side: "top",
+          delayMs: 500,
         },
-        React.createElement("span", { className: "uis-glyph", "aria-hidden": "true" }, "Aa"),
-        scale > 1 ? React.createElement("span", { className: "uis-dot", "aria-hidden": "true" }) : null,
+        React.createElement(
+          "button",
+          {
+            type: "button",
+            className: `uis-trigger${wide ? "" : " uis-trigger--rail"}`,
+            "aria-label": triggerLabel,
+            "aria-haspopup": "dialog",
+            "aria-expanded": open,
+            onClick: () => setOpen((value) => !value),
+          },
+          React.createElement("span", { className: "uis-glyph", "aria-hidden": "true" }, "Aa"),
+          scale > 1 ? React.createElement("span", { className: "uis-dot", "aria-hidden": "true" }) : null,
+        ),
       );
 
       const picker = React.createElement(
@@ -859,10 +866,6 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
             "span",
             {
               className: "uis-current",
-              title:
-                baseline > 100
-                  ? `${t("panel.total")} ${Math.round((baseline / 100) * scale * 100)}%`
-                  : undefined,
             },
             pct(scale),
           ),
@@ -870,29 +873,33 @@ html[data-dsh-ui-zoom] nav[data-dsh-turn-rail] button[data-index]:focus-visible:
         React.createElement(
           "div",
           { className: "uis-grid" },
-          LEVELS.map((level, index) =>
-            React.createElement(
-              "button",
-              {
-                key: level,
-                type: "button",
-                className: `uis-card${level === scale ? " uis-card--active" : ""}`,
-                "aria-pressed": level === scale,
-                title: `${pct(level)} · ${t(`level.${Math.round(level * 100)}`)}`,
-                onClick: () => choose(level),
-              },
+          LEVELS.map((level, index) => {
+            const levelLabel = `${pct(level)} · ${t(`level.${Math.round(level * 100)}`)}`;
+            return React.createElement(
+              Tooltip,
+              { key: level, label: levelLabel, side: "top", delayMs: 500 },
               React.createElement(
-                "span",
+                "button",
                 {
-                  className: "uis-a",
-                  style: { fontSize: `${A_SIZES[index]}px` },
-                  "aria-hidden": "true",
+                  type: "button",
+                  className: `uis-card${level === scale ? " uis-card--active" : ""}`,
+                  "aria-label": levelLabel,
+                  "aria-pressed": level === scale,
+                  onClick: () => choose(level),
                 },
-                "A",
+                React.createElement(
+                  "span",
+                  {
+                    className: "uis-a",
+                    style: { fontSize: `${A_SIZES[index]}px` },
+                    "aria-hidden": "true",
+                  },
+                  "A",
+                ),
+                React.createElement("span", { className: "uis-pct" }, pct(level)),
               ),
-              React.createElement("span", { className: "uis-pct" }, pct(level)),
-            ),
-          ),
+            );
+          }),
         ),
         React.createElement(
           "div",

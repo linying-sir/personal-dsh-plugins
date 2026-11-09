@@ -1,6 +1,6 @@
 {
   "name": "dsh-ui-scale",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "DeepSeek Harness UI scale switcher (100-200%) with a preference that survives restarts",
   "icon": "./icon.svg",
   "license": "MIT",
